@@ -2,3 +2,6 @@
 *.log
 *.sublime-*
 *.DS_Store
+vispa_jsroot/static/vendor/jsroot/*
+!vispa_jsroot/static/vendor/jsroot/scripts
+!vispa_jsroot/static/vendor/jsroot/styles
