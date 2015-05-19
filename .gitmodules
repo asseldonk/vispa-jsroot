@@ -1,0 +1,3 @@
+[submodule "vispa_jsroot/static/vendor/jsroot"]
+	path = vispa_jsroot/static/vendor/jsroot
+	url = https://github.com/linev/jsroot
