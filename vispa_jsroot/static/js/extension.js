@@ -64,8 +64,6 @@ define([
         });
       });
 
-
-
       // this.onSocket("watch", function(data) {
       //   if (data.watch_id != "root")
       //     return;
@@ -85,8 +83,6 @@ define([
       //     });
       //   }
       // });
-
-
 
     }
   });
@@ -170,6 +166,14 @@ define([
             }
           });
 
+          // make canvasWrapper resizable
+          var $canvasWrapper = $image.find(".canvas-wrapper");
+          $canvasWrapper.resizable({
+            // to do:
+            // 100% stop width and height == stop event
+            // take care of inner elements == min height and width?
+          });
+
           // // call function to process root file if this.pathReceived exists
           if (self.pathReceived) {
             self.createGUI(self.pathReceived.path);
@@ -194,11 +198,14 @@ define([
 
     createGUI: function(file) {
       // remove gray background, inset shadow and other stuff
-      $image.toggleClass("clear", true);
+      ($image.find(".canvas-wrapper")).toggleClass("clear", true);
+      var padView = $image.find("#PadView");
       ($image.find("#PadView")).empty();
 
+      // get root file
       var workspaceId = this.getWorkspaceId();
       file = "fs/getfile?path=" + file + "&_workspaceId=" + workspaceId;
+      // load root file
       var h = new JSROOT.HierarchyPainter("example", "TreeView");
       JSROOT.RegisterForResize(h);
       h.SetDisplay("simple", "PadView");
