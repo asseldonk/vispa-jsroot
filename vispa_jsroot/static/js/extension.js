@@ -64,6 +64,8 @@ define([
         });
       });
 
+
+
       // this.onSocket("watch", function(data) {
       //   if (data.watch_id != "root")
       //     return;
@@ -83,6 +85,8 @@ define([
       //     });
       //   }
       // });
+
+
 
     }
   });
@@ -189,9 +193,14 @@ define([
     },
 
     createGUI: function(file) {
+      // remove gray background, inset shadow and other stuff
+      $image.toggleClass("clear", true);
+      ($image.find("#PadView")).empty();
+
       var workspaceId = this.getWorkspaceId();
       file = "fs/getfile?path=" + file + "&_workspaceId=" + workspaceId;
       var h = new JSROOT.HierarchyPainter("example", "TreeView");
+      JSROOT.RegisterForResize(h);
       h.SetDisplay("simple", "PadView");
       h.OpenRootFile(file, function() {
       });
