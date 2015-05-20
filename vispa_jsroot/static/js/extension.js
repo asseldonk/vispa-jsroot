@@ -3,13 +3,17 @@ require.config({
     jsroot                    : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootCore"),
     "jsroot/painter"          : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootPainter"),
     "jsroot/d3"               : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/d3.v3.min"),
-    "jsroot/jquery.mousewheel": vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/jquery.mousewheel")
+    "jsroot/jquery.mousewheel": vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/jquery.mousewheel"),
+    "mathjax"                 : vispa.url.dynamic("extensions/jsroot/static/vendor/MathJax/MathJax")
   },
   shim: {
     jsroot: {
       exports: "JSROOT"
     },
-    "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel" ]
+    "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel" ],
+    mathjax: {
+      exports: "MathJax"
+    }
   }
 });
 
@@ -236,6 +240,7 @@ define([
       this.setLabel(path, true);
 
       require(["jsroot", "jsroot/painter"], function(JSROOT) {
+        JSROOT.gStyle.MathJax = 2;
         self.nodes.$placeholder.hide();
         self.nodes.$canvas.show().find("#PadView").empty();
 
