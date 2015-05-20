@@ -39,11 +39,10 @@ define([
 
       // default preferences
       this.setDefaultPreferences(JsROOTView, {
-        widthFraction: {
+        sidebarWidth: {
           type: "integer",
-          value: 20,
-          range: [5, 95, 1],
-          description: "Width fraction in %."
+          value: 200,
+          description: "Width of the sidebar in pixels."
         }
       });
 
@@ -81,15 +80,23 @@ define([
     init: function init(obj) {
       init._super.apply(this, arguments);
 
+      var self = this;
+
       this.path    = (obj || {}).path;
       this.painter = null;
       this.nodes   = {};
+
+      var resizeTimeout;
+      vispa.on("resize", function() {
+        window.clearTimeout(resizeTimeout);
+        resizeTimeout = window.setTimeout(self.applyPreferences.bind(self), 300);
+      });
     },
 
 
     applyPreferences: function applyPreferences() {
       applyPreferences._super.call(this);
-      this.setWidth(this.getPreference("widthFraction"));
+      this.setSidebarWidth(this.getPreference("sidebarWidth"));
     },
 
 
@@ -130,39 +137,37 @@ define([
           start: function() {
             var mainWidth  = $main.width();
             $controls.resizable("option", "grid", [mainWidth * 0.01, 1]);
+            $controls.resizable("option", "minWidth", 0);
+            $controls.resizable("option", "maxWidth", mainWidth);
           },
           resize: function() {
             var mainWidth     = $main.width();
             var controlsWidth = $controls.width();
+            var contentWidth  = mainWidth - controlsWidth;
             $controls.css({
               left : 0,
               width: controlsWidth
             });
             $content.css({
               left : controlsWidth,
-              width: mainWidth - controlsWidth
+              width: contentWidth
             });
           },
           stop: function() {
-            // prevent the resized divs from being larger than the window 
-            var controlsWidth = $controls.width();
-            var mainWidth     = $main.width();
-            var frac = Math.round(100.0 * controlsWidth / mainWidth);
-            frac = Math.max(5, Math.min(95, frac));
-            // set the new width
-            self.setWidth(frac);
             // tell the preferences about the new width
-            self.setPreference("widthFraction", frac);
+            self.setPreference("sidebarWidth", $controls.width());
             self.pushPreferences();
+            self.applyPreferences();
           }
         });
 
         // make canvas wrapper resizable
-        var maxResizeWidth  = $content.width();
-        var maxResizeHeight = $content.height();
         $canvas.resizable({
-          maxWidth : maxResizeWidth,
-          maxHeight: maxResizeHeight
+          start: function() {
+            // set max dimensions
+            $canvas.resizable("option", "maxWidth",  $content.width());
+            $canvas.resizable("option", "maxHeight", $content.height());
+          }
         });
 
         // store nodes
@@ -172,23 +177,39 @@ define([
         self.nodes.$placeholder = $placeholder;
         self.nodes.$canvas      = $canvas;
 
+        // apply preferences
+        self.applyPreferences();
+
         // open initial path?
         self.openFile(self.path);
       });
     },
 
 
-    setWidth: function(widthFraction) {
-      if (!this.nodes$main) return;
+    setSidebarWidth: function(width) {
+      if (!this.nodes.$main) return;
+
+      var _width = Math.min(Math.max(width, 0), this.nodes.$main.width());
+      if (_width != width) {
+        this.setPreference("sidebarWidth", _width);
+        this.pushPreferences();
+        return;
+      }
 
       this.nodes.$controls.css({
         left : 0,
-        width: widthFraction + "%"
+        width: width
       });
+
       this.nodes.$content.css({
-        left : widthFraction + "%",
-        width: (100 - widthFraction) + "%"
+        left : width,
+        width: ""
       });
+
+      var contentWidth = this.nodes.$content.width();
+      if (this.nodes.$canvas.width() > contentWidth) {
+        this.nodes.$canvas.width(contentWidth);
+      }
     },
 
 
