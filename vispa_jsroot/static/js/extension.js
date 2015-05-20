@@ -4,13 +4,13 @@ require.config({
     "jsroot/painter"          : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootPainter"),
     "jsroot/d3"               : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/d3.v3.min"),
     "jsroot/jquery.mousewheel": vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/jquery.mousewheel"),
-    "mathjax"                 : vispa.url.dynamic("extensions/jsroot/static/vendor/MathJax/MathJax")
+    "mathjax"                 : vispa.url.dynamic("extensions/jsroot/static/vendor/mathjax/MathJax")
   },
   shim: {
     jsroot: {
       exports: "JSROOT"
     },
-    "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel" ],
+    "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel", "mathjax" ],
     mathjax: {
       exports: "MathJax"
     }
@@ -245,8 +245,8 @@ define([
         self.nodes.$canvas.show().find("#PadView").empty();
 
         // set new ids
-        var treeId = vispa.uuid();
-        var padId  = vispa.uuid();
+        var treeId = "tree-" + vispa.uuid();
+        var padId  = "pad-"  + vispa.uuid();
 
         self.nodes.$main.find(".tree").attr("id", treeId);
         self.nodes.$main.find(".pad").attr("id", padId);
@@ -257,7 +257,7 @@ define([
         path = vispa.url.dynamic(path);
 
         // load root file
-        self.painter = new JSROOT.HierarchyPainter(vispa.uuid(), treeId);
+        self.painter = new JSROOT.HierarchyPainter("painter-" + vispa.uuid(), treeId);
         JSROOT.RegisterForResize(self.painter);
         self.painter.SetDisplay("simple", padId);
         self.painter.OpenRootFile(path);
