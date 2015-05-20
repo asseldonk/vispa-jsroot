@@ -27,14 +27,11 @@ define([
 
       var self = this;
 
-
       this.addView("jsroot", JsROOTView);
 
       this.addMenuEntry("Open ROOT File", {
-        iconClass: "fa fa-leaf",
-        callback: function(workspaceId) {
-          self.createInstance(workspaceId, JsROOTView);
-        }
+        iconClass: "jsroot-icon-menu",
+        callback : this.openViaFileSelector.bind(this) 
       });
 
       // default preferences
@@ -50,6 +47,9 @@ define([
       this.addFileHandler("root", function(workspaceId, path) {
         self.createInstance(workspaceId, JsROOTView, { path: path });
       });
+
+      // default fast menu entries
+      this.getDefaultPreferences(JsROOTView).fastMenuEntries.value = [ "open" ];
 
       // this.onSocket("watch", function(data) {
       //   if (data.watch_id != "root")
@@ -70,6 +70,30 @@ define([
       //     });
       //   }
       // });
+    },
+
+    openViaFileSelector: function(workspaceId, callback) {
+      var self = this;
+
+      if (callback === undefined) {
+        callback = function(workspaceId, path) {
+          self.createInstance(workspaceId, JsROOTView, { path: path });
+        };
+      }
+
+      var args = {
+        callback: function(path) {
+          // a root file?
+          var ext = path.split(".").pop().toLowerCase();
+          if (ext != "root") {
+            vispa.messenger.alert("The selected file is not a root file. Please select a different one!");
+          } else {
+            callback(workspaceId, path);
+          }
+        }
+      };
+
+      vispa.extensions.createInstance(workspaceId, "file", "FileSelector", 0, args);
     }
 
   });
@@ -86,17 +110,23 @@ define([
       this.painter = null;
       this.nodes   = {};
 
-      var resizeTimeout;
-      vispa.on("resize", function() {
-        window.clearTimeout(resizeTimeout);
-        resizeTimeout = window.setTimeout(self.applyPreferences.bind(self), 300);
+      this.addMenuEntry("open", {
+        label: "Open File ...",
+        iconClass: "glyphicon glyphicon-folder-open",
+        buttonClass: "btn-primary",
+        callback: function() {
+          self._extension.openViaFileSelector(self.getWorkspaceId(), function(_, path) {
+            self.openFile(path);
+          });
+        }
       });
     },
 
 
     applyPreferences: function applyPreferences() {
       applyPreferences._super.call(this);
-      this.setSidebarWidth(this.getPreference("sidebarWidth"));
+
+      this.layout(this.getPreference("sidebarWidth"));
     },
 
 
@@ -104,60 +134,43 @@ define([
       var self = this;
 
       // set icon for tab
-      this.setIcon("jsroot-tab-icon");
+      this.setIcon("jsroot-icon-tab");
 
       // get html template
       this.getTemplate("html/main.html", function(err, tmpl) {
         if (err) throw err
 
         var $main        = $(tmpl).appendTo($node);
-        var $controls    = $main.find(".controls-resize-wrapper");
+        var $sidebar     = $main.find(".sidebar-resize-wrapper");
         var $content     = $main.find(".content-wrapper");
         var $placeholder = $main.find(".placeholder");
         var $canvas      = $main.find(".canvas-wrapper");
 
-        // open file selector when clicking on open file button
-        var $openFileButton = $main.find(".open-file").click(function($event) {
-          var args = {
-            callback: function(path) {
-              // a root file?
-              var ext = path.split(".").pop().toLowerCase();
-              if (ext != "root") {
-                self.alert("The selected file is not a root file. Please select a different one!");
-              } else {
-                self.openFile(path);
-              }
-            }
-          };
-          self.spawnInstance("file", "FileSelector", args);
-        });
-
         // make divs resizable
-        $controls.resizable({
+        $sidebar.resizable({
           start: function() {
             var mainWidth  = $main.width();
-            $controls.resizable("option", "grid", [mainWidth * 0.01, 1]);
-            $controls.resizable("option", "minWidth", 0);
-            $controls.resizable("option", "maxWidth", mainWidth);
+            $sidebar.resizable("option", "grid", [mainWidth * 0.01, 1]);
+            $sidebar.resizable("option", "minWidth", 0);
+            $sidebar.resizable("option", "maxWidth", mainWidth);
           },
           resize: function() {
-            var mainWidth     = $main.width();
-            var controlsWidth = $controls.width();
-            var contentWidth  = mainWidth - controlsWidth;
-            $controls.css({
+            var mainWidth    = $main.width();
+            var sidebarWidth = $sidebar.width();
+            var contentWidth = mainWidth - sidebarWidth;
+            $sidebar.css({
               left : 0,
-              width: controlsWidth
+              width: sidebarWidth
             });
             $content.css({
-              left : controlsWidth,
+              left : sidebarWidth,
               width: contentWidth
             });
           },
           stop: function() {
             // tell the preferences about the new width
-            self.setPreference("sidebarWidth", $controls.width());
+            self.setPreference("sidebarWidth", parseInt(Math.floor($sidebar.width())));
             self.pushPreferences();
-            self.applyPreferences();
           }
         });
 
@@ -172,7 +185,7 @@ define([
 
         // store nodes
         self.nodes.$main        = $main;
-        self.nodes.$controls    = $controls;
+        self.nodes.$sidebar     = $sidebar;
         self.nodes.$content     = $content;
         self.nodes.$placeholder = $placeholder;
         self.nodes.$canvas      = $canvas;
@@ -186,26 +199,28 @@ define([
     },
 
 
-    setSidebarWidth: function(width) {
+    layout: function(sidebarWidth) {
       if (!this.nodes.$main) return;
 
-      var _width = Math.min(Math.max(width, 0), this.nodes.$main.width());
-      if (_width != width) {
-        this.setPreference("sidebarWidth", _width);
+      // limit the sidebar width
+      var width = Math.min(Math.max(sidebarWidth, 0), this.nodes.$main.width());
+      if (width != sidebarWidth) {
+        this.setPreference("sidebarWidth", width);
         this.pushPreferences();
         return;
       }
 
-      this.nodes.$controls.css({
+      // set sidebar and content layout
+      this.nodes.$sidebar.css({
         left : 0,
-        width: width
+        width: sidebarWidth
       });
-
       this.nodes.$content.css({
-        left : width,
+        left : sidebarWidth,
         width: ""
       });
 
+      // maybe update the canvas width
       var contentWidth = this.nodes.$content.width();
       if (this.nodes.$canvas.width() > contentWidth) {
         this.nodes.$canvas.width(contentWidth);
@@ -218,10 +233,18 @@ define([
 
       if (!path || !this.nodes.$main) return;
       this.path = path;
+      this.setLabel(path, true);
 
       require(["jsroot", "jsroot/painter"], function(JSROOT) {
         self.nodes.$placeholder.hide();
         self.nodes.$canvas.show().find("#PadView").empty();
+
+        // set new ids
+        var treeId = vispa.uuid();
+        var padId  = vispa.uuid();
+
+        self.nodes.$main.find(".tree").attr("id", treeId);
+        self.nodes.$main.find(".pad").attr("id", padId);
 
         // build the root file path
         var workspaceId = self.getWorkspaceId();
@@ -229,9 +252,9 @@ define([
         path = vispa.url.dynamic(path);
 
         // load root file
-        self.painter = new JSROOT.HierarchyPainter("jsroot", "TreeView");
+        self.painter = new JSROOT.HierarchyPainter(vispa.uuid(), treeId);
         JSROOT.RegisterForResize(self.painter);
-        self.painter.SetDisplay("simple", "PadView");
+        self.painter.SetDisplay("simple", padId);
         self.painter.OpenRootFile(path);
       });
     }

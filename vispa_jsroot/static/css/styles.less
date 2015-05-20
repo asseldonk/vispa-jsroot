@@ -1,10 +1,26 @@
 @initial-tree-width: 200px;
 
-.jsroot-tab-icon {
-  background-image : url(../img/root_icon.png);
-  background-repeat: no-repeat;
-  height           : 20px;
-  width            : 20px;
+.jsroot-icon() {
+  position           : relative;
+  display            : inline-block;
+  background-repeat  : no-repeat;
+  background-position: center;
+}
+
+.jsroot-icon-tab {
+  .jsroot-icon();
+  background-image: url(../img/root_icon_18.png);
+  height          : 22px;
+  width           : 22px;
+}
+
+.jsroot-icon-menu {
+  .jsroot-icon();
+  background-image: url(../img/root_icon_14.png);
+  height          : 14px;
+  width           : 14px;
+  top             : 1px;
+  margin-right    : 3px;
 }
 
 .jsroot {
@@ -12,7 +28,7 @@
   .absolute();
   overflow: hidden;
 
-  .controls-resize-wrapper {
+  .sidebar-resize-wrapper {
     .absolute2(@width: @initial-tree-width);
     border      : 1px solid #b8b8b8;
     border-width: 0px 1px 0px 0px;
@@ -37,7 +53,7 @@
       height: 0px;
     }
 
-    .controls-wrapper {
+    .sidebar-wrapper {
       .absolute();
       overflow: auto;
       padding : 10px 20px;
@@ -55,7 +71,7 @@
   .content-wrapper {
     .absolute(@left: @initial-tree-width);
     background-image   : url(../img/grey_wash_wall.png);
-    background-position: center;
+    background-position: left;
 
     .placeholder {
       .absolute(30px; 30px; 30px; 30px);
@@ -80,7 +96,7 @@
         height: 16px;
       }
 
-      #PadView {
+      .pad {
         .absolute(@top: 16px; @right: 16px; @bottom: 16px; @left: 16px);
 
         .root_canvas {
@@ -108,17 +124,17 @@
 
 
 .absolute(@top: 0px; @right: 0px; @bottom: 0px; @left: 0px) {
-position: absolute;
-top     : @top;
-right   : @right;
-bottom  : @bottom;
-left    : @left;
+  position: absolute;
+  top     : @top;
+  right   : @right;
+  bottom  : @bottom;
+  left    : @left;
 }
 
 .absolute2(@top: 0px; @left: 0px; @height: 100%; @width: 100%) {
-position: absolute;
-top     : @top;
-left    : @left;
-height  : @height;
-width   : @width;
+  position: absolute;
+  top     : @top;
+  left    : @left;
+  height  : @height;
+  width   : @width;
 }
