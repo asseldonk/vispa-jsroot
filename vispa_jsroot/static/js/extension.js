@@ -158,10 +158,11 @@ define([
         });
 
         // make canvas wrapper resizable
+        var maxResizeWidth  = $content.width();
+        var maxResizeHeight = $content.height();
         $canvas.resizable({
-          // to do:
-          // 100% stop width and height == stop event
-          // take care of inner elements == min height and width?
+          maxWidth : maxResizeWidth,
+          maxHeight: maxResizeHeight
         });
 
         // store nodes
