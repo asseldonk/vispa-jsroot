@@ -1,14 +1,19 @@
+@initial-tree-width: 200px;
+
+.jsroot-tab-icon {
+  background-image: url(../img/root_icon.png);
+  background-repeat: no-repeat;
+  height: 20px;
+  width: 20px;
+}
+
 .jsroot {
 
   .absolute();
   overflow: hidden;
 
   .controls-resize-wrapper {
-    position    : absolute;
-    top         : 0px;
-    bottom      : 0px;
-    left        : 0px;
-    width       : 20%;
+    .absolute2(@width: @initial-tree-width);
     border      : 1px solid #b8b8b8;
     border-width: 0px 1px 0px 0px;
 
@@ -27,6 +32,11 @@
       }
     }
 
+    > .ui-icon {
+      width: 0px;
+      height: 0px;
+    }
+
     .controls-wrapper {
       .absolute();
       overflow: auto;
@@ -42,36 +52,36 @@
 
   }
 
-  .image-wrapper {
-    position           : absolute;
-    top                : 0px;
-    right              : 0px;
-    bottom             : 0px;
-    width              : 80%;
+  .content-wrapper {
+    .absolute(@left: @initial-tree-width);
+    background-image   : url(../img/grey_wash_wall.png);
+    background-position: center;
+
+    .placeholder {
+      .absolute(30px; 30px; 30px; 30px);
+      min-height         : 150px;
+      min-width          : 200px;
+      font-size          : 30px;
+      font-weight        : lighter;
+      color              : #ddd;
+      border             : 1px solid #ddd;
+      border-radius      : 10px;
+      box-shadow         : inset 0px 0px 15px rgba(30, 30, 30, 0.7);
+    }
 
     .canvas-wrapper {
-      position        : absolute;
-      left            : 0px;
-      top             : 0px;
-      right           : 0px;
-      bottom          : 0px;
-      width           : 60%;
-      height          : 70%;
-      background-image: url(../img/grey_wash_wall.png);
-      background-size : auto 100%;
-      box-shadow      : inset 0px 0px 15px rgba(30, 30, 30, 0.7);
+      .absolute();
+      background-color: white;
+      display: none;
 
+      // workaround
       .ui-icon {
         width : 16px;
         height: 16px;
       }
 
       #PadView {
-      position: absolute;
-      top     : 16px;
-      left    : 16px;
-      right   : 16px;
-      bottom  : 16px;
+        .absolute(@top: 16px; @right: 16px; @bottom: 16px; @left: 16px);
 
         .root_canvas {
           width : 100% !important;
@@ -85,17 +95,6 @@
 
       }
 
-      .placeholder {
-        .absolute(30px, 30px, 30px, 30px);
-        min-height   : 150px;
-        min-width    : 200px;
-        font-size    : 30px;
-        font-weight  : lighter;
-        color        : #ddd;
-        border       : 1px solid #ddd;
-        border-radius: 10px;
-      }
-
       .frame {
         .absolute();
         display: none;
@@ -105,18 +104,21 @@
 
   }
 
+}
 
-  .absolute(@top: 0px, @right: 0px, @bottom: 0px, @left: 0px) {
-    position: absolute;
-    top     : @top;
-    right   : @right;
-    bottom  : @bottom;
-    left    : @left;
-  }
 
-  .clear {
-    background-image   : none !important;
-    box-shadow         : none !important;
-  }
+.absolute(@top: 0px; @right: 0px; @bottom: 0px; @left: 0px) {
+position: absolute;
+top     : @top;
+right   : @right;
+bottom  : @bottom;
+left    : @left;
+}
 
+.absolute2(@top: 0px; @left: 0px; @height: 100%; @width: 100%) {
+position: absolute;
+top     : @top;
+left    : @left;
+height  : @height;
+width   : @width;
 }

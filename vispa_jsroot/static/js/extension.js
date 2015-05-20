@@ -1,3 +1,18 @@
+require.config({
+  paths: {
+    jsroot                    : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootCore"),
+    "jsroot/painter"          : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootPainter"),
+    "jsroot/d3"               : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/d3.v3.min"),
+    "jsroot/jquery.mousewheel": vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/jquery.mousewheel")
+  },
+  shim: {
+    jsroot: {
+      exports: "JSROOT"
+    },
+    "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel" ]
+  }
+});
+
 define([
   "vispa/extensions", 
   "vispa/views/center",
@@ -5,63 +20,36 @@ define([
   "css!../vendor/jsroot/style/JSRootPainter"
 ], function(Extensions, CenterView) {
 
-  this.$main     = null;
-  this.$controls = null;
-  this.$image    = null;
-
-  var jsROOTExtension = Extensions.Extension._extend({
+  var JsROOTExtension = Extensions.Extension._extend({
 
     init: function init() {
       init._super.call(this, "jsroot");
 
-      require.config({
-        paths: {
-          jsroot                    : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootCore"),
-          "jsroot/painter"          : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootPainter"),
-          "jsroot/d3"               : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/d3.v3.min"),
-          "jsroot/jquery.mousewheel": vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/jquery.mousewheel")
-        },
-        shim: {
-          jsroot: {
-            exports: "JSROOT"
-          },
-          "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel" ]
-        }
-      });
-
-      require(["jsroot", "jsroot/painter"], function(JSROOT) {
-      });
-
       var self = this;
 
-      this.addView("jsroot", jsROOTView);
-      this.addMenuEntry("Browse ROOT File", {
+
+      this.addView("jsroot", JsROOTView);
+
+      this.addMenuEntry("Open ROOT File", {
         iconClass: "fa fa-leaf",
         callback: function(workspaceId) {
-          self.createInstance(workspaceId, jsROOTView);
+          self.createInstance(workspaceId, JsROOTView);
         }
       });
 
       // default preferences
-      this.setDefaultPreferences(jsROOTView, {
+      this.setDefaultPreferences(JsROOTView, {
         widthFraction: {
           type: "integer",
           value: 20,
           range: [5, 95, 1],
           description: "Width fraction in %."
-        },
-      }, {
-        title: "Browse Root File"
+        }
       });
 
       // tell other extensions to open root files with this jsROOTView
-      this.fileExtensions = ["root"];
-      $.each(this.fileExtensions, function(i, key) {
-        self.addFileHandler(key, function(workspaceId, path) {
-          self.createInstance(workspaceId, jsROOTView, {
-            path: path
-          });
-        });
+      this.addFileHandler("root", function(workspaceId, path) {
+        self.createInstance(workspaceId, JsROOTView, { path: path });
       });
 
       // this.onSocket("watch", function(data) {
@@ -83,17 +71,19 @@ define([
       //     });
       //   }
       // });
-
     }
+
   });
 
 
-  var jsROOTView = CenterView._extend({
+  var JsROOTView = CenterView._extend({
 
-    init: function init(pathReceived) {
+    init: function init(obj) {
       init._super.apply(this, arguments);
-      this.setLabel("Browse ROOT File");
-      this.pathReceived = pathReceived;
+
+      this.path    = (obj || {}).path;
+      this.painter = null;
+      this.nodes   = {};
     },
 
 
@@ -102,117 +92,130 @@ define([
       this.setWidth(this.getPreference("widthFraction"));
     },
 
+
     render: function($node) {
       var self = this;
+
       // set icon for tab
-      this.setIcon(this.static("img/root_icon.png"));
+      this.setIcon("jsroot-tab-icon");
+
       // get html template
       this.getTemplate("html/main.html", function(err, tmpl) {
-        if (err)
-          throw err
-        else {
-          $main = $(tmpl).appendTo($node);
+        if (err) throw err
 
-            // open file selector when clicking on open file button
-            var $openFileButton = $main.find(".open-file").click(function($event) {
-              var args = {
-                callback: function(path) {
-                  //check if file has pxl proper extension
-                  var ext = path.split(".").pop();
-                  if ((self._extension.fileExtensions = ["root"]).indexOf(ext) == -1) {
-                    self.alert("The selected file is not a root file. Please select a different one!");
-                    path = null;
-                  }
-                  else {
-                    // call function to process root file
-                    self.createGUI(path);
-                  }
-                }
-              };
-              self.spawnInstance("file", "FileSelector", args);
-            });
+        var $main        = $(tmpl).appendTo($node);
+        var $controls    = $main.find(".controls-resize-wrapper");
+        var $content     = $main.find(".content-wrapper");
+        var $placeholder = $main.find(".placeholder");
+        var $canvas      = $main.find(".canvas-wrapper");
 
-          // make divs resizable
-          $controls = $main.find(".controls-resize-wrapper");
-          $image    = $main.find(".image-wrapper");
-          $controls.resizable({
-            start: function() {
-              var mainWidth  = $main.width();
-              $controls.resizable("option", "grid", [mainWidth * 0.01, 1]);
-            },
-            resize: function() {
-              var mainWidth     = $main.width();
-              var controlsWidth = $controls.width();
-              $controls.css({
-                left : 0,
-                width: controlsWidth
-              });
-              $image.css({
-                left : controlsWidth,
-                width: mainWidth - controlsWidth
-              });
-            },
-            stop: function() {
-              // prevent the resized divs from being larger than the window 
-              var controlsWidth = $controls.width();
-              var mainWidth     = $main.width();
-              var frac = Math.round(100.0 * controlsWidth / mainWidth);
-              frac = Math.max(5, Math.min(95, frac));
-              // set the new width
-              self.setWidth(frac);
-              // tell the preferences about the new width
-              self.setPreference("widthFraction", frac);
-              self.pushPreferences();
+        // open file selector when clicking on open file button
+        var $openFileButton = $main.find(".open-file").click(function($event) {
+          var args = {
+            callback: function(path) {
+              // a root file?
+              var ext = path.split(".").pop().toLowerCase();
+              if (ext != "root") {
+                self.alert("The selected file is not a root file. Please select a different one!");
+              } else {
+                self.openFile(path);
+              }
             }
-          });
+          };
+          self.spawnInstance("file", "FileSelector", args);
+        });
 
-          // make canvasWrapper resizable
-          var $canvasWrapper = $image.find(".canvas-wrapper");
-          $canvasWrapper.resizable({
-            // to do:
-            // 100% stop width and height == stop event
-            // take care of inner elements == min height and width?
-          });
-
-          // // call function to process root file if this.pathReceived exists
-          if (self.pathReceived) {
-            self.createGUI(self.pathReceived.path);
+        // make divs resizable
+        $controls.resizable({
+          start: function() {
+            var mainWidth  = $main.width();
+            $controls.resizable("option", "grid", [mainWidth * 0.01, 1]);
+          },
+          resize: function() {
+            var mainWidth     = $main.width();
+            var controlsWidth = $controls.width();
+            $controls.css({
+              left : 0,
+              width: controlsWidth
+            });
+            $content.css({
+              left : controlsWidth,
+              width: mainWidth - controlsWidth
+            });
+          },
+          stop: function() {
+            // prevent the resized divs from being larger than the window 
+            var controlsWidth = $controls.width();
+            var mainWidth     = $main.width();
+            var frac = Math.round(100.0 * controlsWidth / mainWidth);
+            frac = Math.max(5, Math.min(95, frac));
+            // set the new width
+            self.setWidth(frac);
+            // tell the preferences about the new width
+            self.setPreference("widthFraction", frac);
+            self.pushPreferences();
           }
-        }
+        });
+
+        // make canvas wrapper resizable
+        $canvas.resizable({
+          // to do:
+          // 100% stop width and height == stop event
+          // take care of inner elements == min height and width?
+        });
+
+        // store nodes
+        self.nodes.$main        = $main;
+        self.nodes.$controls    = $controls;
+        self.nodes.$content     = $content;
+        self.nodes.$placeholder = $placeholder;
+        self.nodes.$canvas      = $canvas;
+
+        // open initial path?
+        self.openFile(self.path);
       });
     },
 
+
     setWidth: function(widthFraction) {
-      if (!$main) {
-        return this;
-      }
-      $controls.css({
+      if (!this.nodes$main) return;
+
+      this.nodes.$controls.css({
         left : 0,
         width: widthFraction + "%"
       });
-      $image.css({
+      this.nodes.$content.css({
         left : widthFraction + "%",
         width: (100 - widthFraction) + "%"
       });
     },
 
-    createGUI: function(file) {
-      // remove gray background, inset shadow and other stuff
-      ($image.find(".canvas-wrapper")).toggleClass("clear", true);
-      var padView = $image.find("#PadView");
-      ($image.find("#PadView")).empty();
 
-      // get root file
-      var workspaceId = this.getWorkspaceId();
-      file = "fs/getfile?path=" + file + "&_workspaceId=" + workspaceId;
-      // load root file
-      var h = new JSROOT.HierarchyPainter("example", "TreeView");
-      JSROOT.RegisterForResize(h);
-      h.SetDisplay("simple", "PadView");
-      h.OpenRootFile(file, function() {
+    openFile: function(path) {
+      var self = this;
+
+      if (!path || !this.nodes.$main) return;
+      this.path = path;
+
+      require(["jsroot", "jsroot/painter"], function(JSROOT) {
+        self.nodes.$placeholder.hide();
+        self.nodes.$canvas.show().find("#PadView").empty();
+
+        // build the root file path
+        var workspaceId = self.getWorkspaceId();
+        path = "fs/getfile?path=" + path + "&_workspaceId=" + workspaceId;
+        path = vispa.url.dynamic(path);
+
+        // load root file
+        self.painter = new JSROOT.HierarchyPainter("jsroot", "TreeView");
+        JSROOT.RegisterForResize(self.painter);
+        self.painter.SetDisplay("simple", "PadView");
+        self.painter.OpenRootFile(path);
       });
-    },
+    }
 
   });
-  return jsROOTExtension;
+
+
+  return JsROOTExtension;
 });
