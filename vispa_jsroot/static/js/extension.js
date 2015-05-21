@@ -240,7 +240,7 @@ define([
       this.setLabel(path, true);
 
       require(["jsroot", "jsroot/painter"], function(JSROOT) {
-        JSROOT.gStyle.MathJax = 2;
+        JSROOT.MathJax = 2;
         self.nodes.$placeholder.hide();
         self.nodes.$canvas.show().find("#PadView").empty();
 
