@@ -10,7 +10,7 @@ require.config({
     jsroot: {
       exports: "JSROOT"
     },
-    "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel", "mathjax" ],
+    "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel" ],
     mathjax: {
       exports: "MathJax"
     }
