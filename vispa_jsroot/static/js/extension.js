@@ -35,14 +35,15 @@ define([
 
       this.addMenuEntry("Open ROOT File", {
         iconClass: "jsroot-icon-menu",
+        priority : 1,
         callback : this.openViaFileSelector.bind(this) 
       });
 
       // default preferences
       this.setDefaultPreferences(JsROOTView, {
         sidebarWidth: {
-          type: "integer",
-          value: 200,
+          type       : "integer",
+          value      : 200,
           description: "Width of the sidebar in pixels."
         }
       });
@@ -117,8 +118,8 @@ define([
       this.nodes   = {};
 
       this.addMenuEntry("open", {
-        label: "Open File ...",
-        iconClass: "glyphicon glyphicon-folder-open",
+        label      : "Open File ...",
+        iconClass  : "glyphicon glyphicon-folder-open",
         buttonClass: "btn-primary",
         callback: function() {
           self._extension.openViaFileSelector(self.getWorkspaceId(), function(_, path) {
@@ -128,8 +129,8 @@ define([
       });
 
       this.addMenuEntry("help", {
-        label: "Help",
-        iconClass: "glyphicon glyphicon-question-sign",
+        label      : "Help",
+        iconClass  : "glyphicon glyphicon-question-sign",
         buttonClass: "btn-primary",
         callback: function() {
           self.openHelpDialog();
@@ -289,9 +290,9 @@ define([
                     " href='https://github.com/linev/jsroot/blob/master/docs/JSROOT.md'> documentation site</a>.";
       var $footer = $("<div><button class='btn btn-primary'>Close</button></div>");
       self.dialog({
-        header: header,
-        body  : body,
-        footer: $footer,
+        header  : header,
+        body    : body,
+        footer  : $footer,
         onRender: function() {
           var self = this;
           $footer.find("button").click(function() {
