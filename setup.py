@@ -1,20 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from distutils.core import setup
-
+from setuptools import setup
 
 setup(
-    name             = "jsroot",
+    name             = "vispa_jsroot",
     version          = "0.0.0",
     description      = "VISPA ROOT Browser - Inspect contents of root files.",
     author           = "VISPA Project",
     author_email     = "vispa@lists.rwth-aachen.de",
     url              = "http://vispa.physik.rwth-aachen.de/",
     license          = "GNU GPL v2",
-    packages         = ["jsroot"],
-    package_dir      = {"jsroot": "jsroot"},
-    package_data     = {"jsroot": [
+    packages         = ["vispa_jsroot"],
+    package_dir      = {"vispa_jsroot": "vispa_jsroot"},
+    package_data     = {"vispa_jsroot": [
         "workspace/*",
         "static/*",
     ]},
