@@ -77,11 +77,6 @@ define([
       // });
     },
 
-    openHelpDialog: function() {
-      // var self = this;
-      vispa.messenger.alert("VISPA uses the <a href='https%3A%2F%2Fgithub.com%2Flinev%2Fjsroot'>jsroot</a> library to draw ROOT objects. Currently, the classes TH1, TH2, TH3, TProfile, TGraph, TF1, TPaveText, and TCanvas are supported. For more information, visit the <a href='https%3A%2F%2Fgithub.com%2Flinev%2Fjsroot%2Fblob%2Fmaster%2Fdocs%2FJSROOT.md'> documentation site</a>.");
-    },
-
 
     openViaFileSelector: function(workspaceId, callback) {
       var self = this;
@@ -133,17 +128,11 @@ define([
       });
 
       this.addMenuEntry("help", {
-        label: "?",
-        iconClass: "",
+        label: "Help",
+        iconClass: "glyphicon glyphicon-question-sign",
         buttonClass: "btn-primary",
         callback: function() {
-          vispa.messenger.alert("VISPA adopts the <a target='_blank' href='https://github.com/linev/jsroot'>jsroot" +
-                                "</a> library to draw ROOT objects. Currently, the classes TH1, TH2, TH3, TProfile," +
-                                " TGraph, TF1, TPaveText, and TCanvas are supported, as well as LaTeX strings." +
-                                " For more information, visit the <a target='_blank'" +
-                                " href='https://github.com/linev/jsroot/blob/master/docs/JSROOT.md'> documentation" +
-                                " site</a>."
-          );
+          self.openHelpDialog();
         }
       });
 
@@ -222,9 +211,9 @@ define([
 
         // open initial path?
         self.openFile(self.path);
+
       });
     },
-
 
     layout: function(sidebarWidth) {
       if (!this.nodes.$main) return;
@@ -285,7 +274,33 @@ define([
         self.painter.SetDisplay("simple", padId);
         self.painter.OpenRootFile(path);
       });
-    }
+    },
+
+
+    openHelpDialog: function() {
+      var self    = this;
+      var header  = "<i class='glyphicon glyphicon-question-sign'></i> Help";
+      var body    = "<h3>Why are my graphs not shown correctely?</h3><br>VISPA adopts" +
+                    " the <a target='_blank' href='https://github.com/linev/jsroot'>jsroot </a> library to draw" +
+                    " <a target='_blank' href='https://root.cern.ch'>ROOT</a> objects. Currently, the classes" +
+                    " <ul><li>TH1</li><li>TH2</li><li>TH3 </li><li>TProfile</li><li>TGraph</li><li>TF1</li>" +
+                    " <li>TPaveText</li><li>TCanvas</li></ul> are supported, as well as LaTeX strings." +
+                    " <br>For more information, visit the jsroot <a target='_blank'" +
+                    " href='https://github.com/linev/jsroot/blob/master/docs/JSROOT.md'> documentation site</a>.";
+      var $footer = $("<div><button class='btn btn-primary'>Close</button></div>");
+      self.dialog({
+        header: header,
+        body  : body,
+        footer: $footer,
+        onRender: function() {
+          var self = this;
+          $footer.find("button").click(function() {
+            self.close();
+          });
+        }
+      });
+    },
+
 
   });
 
