@@ -249,6 +249,7 @@ define([
       var self = this;
 
       if (!path || !this.nodes.$main) return;
+      this.setLoading(true);
       this.path = path;
       this.setLabel(path, true);
 
@@ -273,8 +274,11 @@ define([
         self.painter = new JSROOT.HierarchyPainter("painter-" + vispa.uuid(), treeId);
         JSROOT.RegisterForResize(self.painter);
         self.painter.SetDisplay("simple", padId);
-        self.painter.OpenRootFile(path);
+        self.painter.OpenRootFile(path, function() {
+          self.setLoading(false);
+        });
       });
+
     },
 
 
