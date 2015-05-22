@@ -54,6 +54,7 @@ define([
 
       // default fast menu entries
       this.getDefaultPreferences(JsROOTView).fastMenuEntries.value = [ "open" ];
+      this.getDefaultPreferences(JsROOTView).fastMenuEntries.value = [ "help" ];
 
       // this.onSocket("watch", function(data) {
       //   if (data.watch_id != "root")
@@ -75,6 +76,12 @@ define([
       //   }
       // });
     },
+
+    openHelpDialog: function() {
+      // var self = this;
+      vispa.messenger.alert("VISPA uses the <a href='https%3A%2F%2Fgithub.com%2Flinev%2Fjsroot'>jsroot</a> library to draw ROOT objects. Currently, the classes TH1, TH2, TH3, TProfile, TGraph, TF1, TPaveText, and TCanvas are supported. For more information, visit the <a href='https%3A%2F%2Fgithub.com%2Flinev%2Fjsroot%2Fblob%2Fmaster%2Fdocs%2FJSROOT.md'> documentation site</a>.");
+    },
+
 
     openViaFileSelector: function(workspaceId, callback) {
       var self = this;
@@ -124,6 +131,22 @@ define([
           });
         }
       });
+
+      this.addMenuEntry("help", {
+        label: "?",
+        iconClass: "",
+        buttonClass: "btn-primary",
+        callback: function() {
+          vispa.messenger.alert("VISPA adopts the <a target='_blank' href='https://github.com/linev/jsroot'>jsroot" +
+                                "</a> library to draw ROOT objects. Currently, the classes TH1, TH2, TH3, TProfile," +
+                                " TGraph, TF1, TPaveText, and TCanvas are supported, as well as LaTeX strings." +
+                                " For more information, visit the <a target='_blank'" +
+                                " href='https://github.com/linev/jsroot/blob/master/docs/JSROOT.md'> documentation" +
+                                " site</a>."
+          );
+        }
+      });
+
     },
 
 
@@ -142,7 +165,7 @@ define([
 
       // get html template
       this.getTemplate("html/main.html", function(err, tmpl) {
-        if (err) throw err
+        if (err) throw err;
 
         var $main        = $(tmpl).appendTo($node);
         var $sidebar     = $main.find(".sidebar-resize-wrapper");
