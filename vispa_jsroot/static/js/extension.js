@@ -3,17 +3,13 @@ require.config({
     jsroot                    : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootCore"),
     "jsroot/painter"          : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootPainter"),
     "jsroot/d3"               : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/d3.v3.min"),
-    "jsroot/jquery.mousewheel": vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/jquery.mousewheel"),
-    "mathjax"                 : vispa.url.dynamic("extensions/jsroot/static/vendor/mathjax/MathJax")
+    "jsroot/jquery.mousewheel": vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/jquery.mousewheel")
   },
   shim: {
     jsroot: {
       exports: "JSROOT"
     },
-    "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel" ],
-    mathjax: {
-      exports: "MathJax"
-    }
+    "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel" ]
   }
 });
 
@@ -57,25 +53,6 @@ define([
       this.getDefaultPreferences(JsROOTView).fastMenuEntries.value = [ "open" ];
       this.getDefaultPreferences(JsROOTView).fastMenuEntries.value = [ "help" ];
 
-      // this.onSocket("watch", function(data) {
-      //   if (data.watch_id != "root")
-      //     return;
-      //   if (data.event == "vanish") {
-      //     self.confirm("File has been deleted or renamed. \n Please open a new file or the browser is closed.", function(res) {
-      //       if (!res)
-      //         self.close();
-      //       else {
-      //         var callback = function() {
-      //           self.spawnInstance("jsroot", "jsROOT", {
-      //             path: self.getState("path")
-      //           });
-      //           self.close();
-      //         };
-      //         self.openFileSelector(null, callback);
-      //       }
-      //     });
-      //   }
-      // });
     },
 
 
@@ -134,6 +111,29 @@ define([
         buttonClass: "btn-primary",
         callback: function() {
           self.openHelpDialog();
+        }
+      });
+
+      // look if file has been changed
+      this.onSocket("watch", function(data) {
+        if (data.watch_id != "jsroot")
+          return;
+        if (data.event == "vanish") {
+          self.confirm("File has been deleted or renamed. \n Please open a new file or the browser is closed.", function(res) {
+            if (!res)
+              self.close();
+            else {
+              var callback = function() {
+                self.spawnInstance("jsroot", "JSROOT", {
+                  path: this.path
+                });
+                self.close();
+              };
+              self._extension.openViaFileSelector(self.getWorkspaceId(), function(_, path) {
+                self.openFile(path);
+              });
+            }
+          });
         }
       });
 
@@ -277,6 +277,13 @@ define([
         self.painter.OpenRootFile(path, function() {
           self.setLoading(false);
         });
+      });
+
+      // watch
+      console.log(this.path);
+      this.POST("/ajax/fs/watch", {
+        path    : this.path,
+        watch_id: "jsroot"
       });
 
     },
