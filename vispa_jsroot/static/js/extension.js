@@ -76,6 +76,7 @@ define([
           var ext = path.split(".").pop().toLowerCase();
           if (ext != "root") {
             vispa.messenger.alert("The selected file is not a root file. Please select a different one!");
+            self.openViaFileSelector(workspaceId, callback);
           } else {
             callback(workspaceId, path);
           }
@@ -119,12 +120,16 @@ define([
         }
       });
 
-      // look if file has been changed
+      // look if file has been deleted or modified
       this.onSocket("watch", function(data) {
         if (data.watch_id != "jsroot")
           return;
-        if (data.event == "vanish") {
-          self.confirm("File has been deleted or renamed. \n Please open a new file or the browser is closed.", function(res) {
+        // in case file deleting or renamings
+        if (data.event == "vanish" && data.mtime == -1) {
+          var filename = ((data.path).split('/')).pop();
+          self.confirm("The file '" + filename + 
+                       "' has been deleted or renamed. \n Please open a new file or the browser is closed.",
+          function(res) {
             if (!res)
               self.close();
             else {
@@ -140,6 +145,25 @@ define([
             }
           });
         }
+        // in case up file modification
+        if (data.event == "vanish" && data.mtime != -1) {
+          var filename = ((data.path).split('/')).pop();
+          self.confirm("The file '" + filename +
+                       "' has been modified. \n Would you like to reload it?", function(res) {
+            if (!res)
+              self.close();
+            else {
+              var callback = function() {
+                self.spawnInstance("jsroot", "JSROOT", {
+                  path: this.path
+                });
+                self.close();
+              };
+              self.openFile(data.path);
+            }
+          });
+        }
+
       });
 
     },
@@ -285,8 +309,7 @@ define([
       });
 
       // watch
-      console.log(this.path);
-      this.POST("/ajax/fs/watch", {
+      this.POST(vispa.url.dynamic("/ajax/fs/watch"), {
         path    : this.path,
         watch_id: "jsroot"
       });
@@ -317,6 +340,12 @@ define([
         }
       });
     },
+
+    onBeforeClose: function() {
+      this.POST(vispa.url.dynamic("/ajax/fs/unwatch"), {
+        watch_id: "jsroot"
+      });
+    }
 
 
   });
