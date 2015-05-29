@@ -62,6 +62,8 @@ define([
           value      : 200,
           description: "Width of the sidebar in pixels."
         }
+      }, {
+        title: "ROOT File Browser"
       });
 
       // tell other extensions to open root files with this jsROOTView
