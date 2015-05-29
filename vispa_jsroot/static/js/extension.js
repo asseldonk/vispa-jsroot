@@ -4,18 +4,33 @@ require.config({
     "jsroot/painter"          : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootPainter"),
     "jsroot/d3"               : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/d3.v3.min"),
     "jsroot/jquery.mousewheel": vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/jquery.mousewheel"),
-    // "mathjax"                 : vispa.url.dynamic("extensions/jsroot/static/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_SVG," + 
-    //                             vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/mathjax_config.js"))
-
+    "mathjax"                 : vispa.url.dynamic("extensions/jsroot/static/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_SVG" +
+                                // vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/mathjax_config.js")),
+                                "&amp;delayStartupUntil=configured"),
   },
   shim: {
     jsroot: {
       exports: "JSROOT"
     },
-    "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel", ],
-    // "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel", "mathjax" ],
+    // "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel" ],
+    "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel", "mathjax" ],
+    mathjax: {
+      exports: "MathJax",
+      deps: ['jsroot'],
+      init: function () {
+        MathJax.Hub.Config({ TeX: { extensions: ["color.js"] }});
+        MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
+           var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;
+           VARIANT["normal"].fonts.unshift("MathJax_SansSerif");
+           VARIANT["bold"].fonts.unshift("MathJax_SansSerif-bold");
+           VARIANT["italic"].fonts.unshift("MathJax_SansSerif");
+           VARIANT["-tex-mathit"].fonts.unshift("MathJax_SansSerif");
+        });
+        MathJax.Hub.Startup.onload();
+        return MathJax;
+      }
+    }
   }
-
 });
 
 define([
@@ -96,6 +111,8 @@ define([
 
       var self = this;
 
+      require(["jsroot", "mathjax"]);
+
       this.path    = (obj || {}).path;
       this.painter = null;
       this.nodes   = {};
@@ -122,6 +139,7 @@ define([
 
       // look if file has been deleted or modified
       this.onSocket("watch", function(data) {
+        console.log(data);
         if (data.watch_id != "jsroot")
           return;
         // in case file deleting or renamings
@@ -147,6 +165,23 @@ define([
         }
         // in case up file modification
         if (data.event == "vanish" && data.mtime != -1) {
+          var filename = ((data.path).split('/')).pop();
+          self.confirm("The file '" + filename +
+                       "' has been modified. \n Would you like to reload it?", function(res) {
+            if (!res)
+              self.close();
+            else {
+              var callback = function() {
+                self.spawnInstance("jsroot", "JSROOT", {
+                  path: this.path
+                });
+                self.close();
+              };
+              self.openFile(data.path);
+            }
+          });
+        }
+        if (data.event == "modify") {
           var filename = ((data.path).split('/')).pop();
           self.confirm("The file '" + filename +
                        "' has been modified. \n Would you like to reload it?", function(res) {
@@ -309,7 +344,7 @@ define([
       });
 
       // watch
-      this.POST(vispa.url.dynamic("/ajax/fs/watch"), {
+      this.POST("/ajax/fs/watch", {
         path    : this.path,
         watch_id: "jsroot"
       });
@@ -320,7 +355,7 @@ define([
     openHelpDialog: function() {
       var self    = this;
       var header  = "<i class='glyphicon glyphicon-question-sign'></i> Help";
-      var body    = "<h3>Why are my graphs not shown correctely?</h3><br>VISPA adopts" +
+      var body    = "<h3>Why are my root files not shown correctely?</h3><br>VISPA adopts" +
                     " the <a target='_blank' href='https://github.com/linev/jsroot'>jsroot </a> library to draw" +
                     " <a target='_blank' href='https://root.cern.ch'>ROOT</a> objects. Currently, the classes" +
                     " <ul><li>TH1</li><li>TH2</li><li>TH3 </li><li>TProfile</li><li>TGraph</li><li>TF1</li>" +
@@ -341,10 +376,8 @@ define([
       });
     },
 
-    onBeforeClose: function() {
-      this.POST(vispa.url.dynamic("/ajax/fs/unwatch"), {
-        watch_id: "jsroot"
-      });
+    onClose: function() {
+      this.POST("/ajax/fs/unwatch");
     }
 
 
