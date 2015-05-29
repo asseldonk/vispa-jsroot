@@ -251,7 +251,7 @@ define([
           stop: function() {
             // tell the preferences about the new width
             self.setPreference("sidebarWidth", parseInt(Math.floor($sidebar.width())));
-            self.pushPreferences();
+            // self.pushPreferences();
           }
         });
 
