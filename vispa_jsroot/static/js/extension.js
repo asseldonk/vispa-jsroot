@@ -1,35 +1,8 @@
 require.config({
   paths: {
-    jsroot                    : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootCore"),
-    "jsroot/painter"          : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootPainter"),
-    "jsroot/d3"               : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/d3.v3.min"),
-    "jsroot/jquery.mousewheel": vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/jquery.mousewheel"),
-    "mathjax"                 : vispa.url.dynamic("extensions/jsroot/static/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_SVG" +
-                                // vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/mathjax_config.js")),
-                                "&amp;delayStartupUntil=configured"),
-  },
-  shim: {
-    jsroot: {
-      exports: "JSROOT"
-    },
-    // "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel" ],
-    "jsroot/painter": [ "jsroot", "jsroot/d3", "jsroot/jquery.mousewheel", "mathjax" ],
-    mathjax: {
-      exports: "MathJax",
-      deps: ['jsroot'],
-      init: function () {
-        MathJax.Hub.Config({ TeX: { extensions: ["color.js"] }});
-        MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
-           var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;
-           VARIANT["normal"].fonts.unshift("MathJax_SansSerif");
-           VARIANT["bold"].fonts.unshift("MathJax_SansSerif-bold");
-           VARIANT["italic"].fonts.unshift("MathJax_SansSerif");
-           VARIANT["-tex-mathit"].fonts.unshift("MathJax_SansSerif");
-        });
-        MathJax.Hub.Startup.onload();
-        return MathJax;
-      }
-    }
+    "JSRootCore"    : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootCore"),
+    "JSRootPainter" : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootPainter"),
+    "mathjax"       : vispa.url.dynamic("extensions/jsroot/static/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_SVG&amp;delayStartupUntil=configured")
   }
 });
 
@@ -113,7 +86,7 @@ define([
 
       var self = this;
 
-      require(["jsroot", "mathjax"]);
+      require(["JSRootCore", "mathjax", "JSRootPainter"]);
 
       this.path    = (obj || {}).path;
       this.painter = null;
@@ -319,7 +292,7 @@ define([
       this.path = path;
       this.setLabel(path, true);
 
-      require(["jsroot", "jsroot/painter"], function(JSROOT) {
+      require(["JSRootPainter"], function(JSROOT) {
         JSROOT.MathJax = 2;
         self.nodes.$placeholder.hide();
         self.nodes.$canvas.show().find("> div.pad").empty();
