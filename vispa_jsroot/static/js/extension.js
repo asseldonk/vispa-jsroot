@@ -2,7 +2,8 @@ require.config({
   paths: {
     "JSRootCore"    : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootCore"),
     "JSRootPainter" : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootPainter"),
-    "mathjax"       : vispa.url.dynamic("extensions/jsroot/static/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_SVG&amp;delayStartupUntil=configured")
+    "d3"            : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/d3.v3.min"),
+    "mathjax"       : vispa.url.dynamic("extensions/jsroot/static/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_SVG&amp;delayStartupUntil=configured"),
   }
 });
 
@@ -86,7 +87,7 @@ define([
 
       var self = this;
 
-      require(["JSRootCore", "mathjax", "JSRootPainter"]);
+      require(["JSRootCore", "JSRootPainter", "mathjax"]);
 
       this.path    = (obj || {}).path;
       this.painter = null;
@@ -114,7 +115,6 @@ define([
 
       // look if file has been deleted or modified
       this.onSocket("watch", function(data) {
-        console.log(data);
         if (data.watch_id != "jsroot")
           return;
         // in case file deleting or renamings
@@ -290,6 +290,8 @@ define([
       if (!path || !this.nodes.$main) return;
       this.setLoading(true);
       this.path = path;
+      console.log(this);
+      console.trace();
       this.setLabel(path, true);
 
       require(["JSRootPainter"], function(JSROOT) {
