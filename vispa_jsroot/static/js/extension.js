@@ -1,14 +1,14 @@
 require.config({
   paths: {
-    "JSRootCore"    : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootCore"),
-    "JSRootPainter" : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootPainter"),
-    "d3"            : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/d3.v3.min"),
-    "mathjax"       : vispa.url.dynamic("extensions/jsroot/static/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_SVG&amp;delayStartupUntil=configured"),
+    JSRootCore     : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootCore"),
+    JSRootPainter  : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootPainter"),
+    d3             : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/d3.v3.min"),
+    mathjax        : vispa.url.dynamic("extensions/jsroot/static/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_SVG&amp;delayStartupUntil=configured")
   }
 });
 
 define([
-  "vispa/extensions", 
+  "vispa/extensions",
   "vispa/views/center",
   "css!../css/styles",
   "css!../vendor/jsroot/style/JSRootPainter"
@@ -26,7 +26,7 @@ define([
       this.addMenuEntry("Open ROOT File", {
         iconClass: "jsroot-icon-menu",
         priority : 1,
-        callback : this.openViaFileSelector.bind(this) 
+        callback : this.openViaFileSelector.bind(this)
       });
 
       // default preferences
@@ -64,7 +64,8 @@ define([
       var args = {
         callback: function(path) {
           // a root file?
-          if (!path) return;
+          if (!path)
+            return;
           var ext = path.split(".").pop().toLowerCase();
           if (ext != "root") {
             vispa.messenger.alert("The selected file is not a root file. Please select a different one!");
@@ -121,7 +122,7 @@ define([
         // in case file deleting or renamings
         if (data.event == "vanish" && data.mtime == -1) {
           var filename = ((data.path).split('/')).pop();
-          self.confirm("The file '" + filename + 
+          self.confirm("The file '" + filename +
                        "' has been deleted or renamed. \n Please open a new file or the browser is closed.",
           function(res) {
             if (!res)
