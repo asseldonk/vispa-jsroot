@@ -64,6 +64,7 @@ define([
       var args = {
         callback: function(path) {
           // a root file?
+          if (!path) return;
           var ext = path.split(".").pop().toLowerCase();
           if (ext != "root") {
             vispa.messenger.alert("The selected file is not a root file. Please select a different one!");
