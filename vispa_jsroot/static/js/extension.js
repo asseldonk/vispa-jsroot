@@ -291,8 +291,6 @@ define([
       if (!path || !this.nodes.$main) return;
       this.setLoading(true);
       this.path = path;
-      console.log(this);
-      console.trace();
       this.setLabel(path, true);
 
       require(["JSRootPainter"], function(JSROOT) {
