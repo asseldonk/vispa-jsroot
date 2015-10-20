@@ -3,7 +3,7 @@ require.config({
     JSRootCore     : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootCore"),
     JSRootPainter  : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootPainter"),
     d3             : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/d3.v3.min"),
-    mathjax        : vispa.url.dynamic("extensions/jsroot/static/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_SVG&amp;delayStartupUntil=configured")
+    MathJax        : vispa.url.dynamic("extensions/jsroot/static/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_SVG&amp;delayStartupUntil=configured")
   }
 });
 
@@ -89,7 +89,7 @@ define([
 
       var self = this;
 
-      require(["JSRootCore", "JSRootPainter", "mathjax"]);
+      require(["JSRootCore", "JSRootPainter", "MathJax"]);
 
       this.path    = (obj || {}).path;
       this.painter = null;
