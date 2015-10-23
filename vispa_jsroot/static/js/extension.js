@@ -109,7 +109,7 @@ define([
       this.addMenuEntry("help", {
         label      : "Help",
         iconClass  : "glyphicon glyphicon-question-sign",
-        buttonClass: "btn-primary",
+        buttonClass: "btn-default",
         callback: function() {
           self.openHelpDialog();
         }
@@ -183,7 +183,6 @@ define([
 
     applyPreferences: function applyPreferences() {
       applyPreferences._super.call(this);
-
       this.layout(this.getPreference("sidebarWidth"));
     },
 
