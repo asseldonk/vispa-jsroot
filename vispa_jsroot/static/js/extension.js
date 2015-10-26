@@ -4,6 +4,12 @@ require.config({
     JSRootPainter  : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/JSRootPainter"),
     d3             : vispa.url.dynamic("extensions/jsroot/static/vendor/jsroot/scripts/d3.v3.min"),
     MathJax        : vispa.url.dynamic("extensions/jsroot/static/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_SVG&amp;delayStartupUntil=configured")
+  },
+  map: {
+    '*' : {
+      'jquery-ui'  : 'vendor/jquery/plugins/ui/jquery.ui',
+      'touchpunch' : 'vendor/jquery/plugins/touchpunch/jquery.touchpunch'
+    }
   }
 });
 
@@ -95,16 +101,17 @@ define([
       this.painter = null;
       this.nodes   = {};
 
-      this.addMenuEntry("open", {
-        label      : "Open File ...",
-        iconClass  : "glyphicon glyphicon-folder-open",
-        buttonClass: "btn-primary",
-        callback: function() {
-          self._extension.openViaFileSelector(self.getWorkspaceId(), function(_, path) {
-            self.openFile(path);
-          });
-        }
-      });
+      // open file button
+      // this.addMenuEntry("open", {
+      //   label      : "Open File ...",
+      //   iconClass  : "glyphicon glyphicon-folder-open",
+      //   buttonClass: "btn-primary",
+      //   callback: function() {
+      //     self._extension.openViaFileSelector(self.getWorkspaceId(), function(_, path) {
+      //       self.openFile(path);
+      //     });
+      //   }
+      // });
 
       this.addMenuEntry("help", {
         label      : "Help",
@@ -120,7 +127,7 @@ define([
         if (data.watch_id != "jsroot")
           return;
         // in case file deleting or renamings
-        if (data.event == "vanish" && data.mtime == -1) {
+        if (data.event == "vanish") {
           var filename = ((data.path).split('/')).pop();
           self.confirm("The file '" + filename +
                        "' has been deleted or renamed. \n Please open a new file or the browser is closed.",
@@ -137,24 +144,6 @@ define([
               self._extension.openViaFileSelector(self.getWorkspaceId(), function(_, path) {
                 self.openFile(path);
               });
-            }
-          });
-        }
-        // in case up file modification
-        if (data.event == "vanish" && data.mtime != -1) {
-          var filename = ((data.path).split('/')).pop();
-          self.confirm("The file '" + filename +
-                       "' has been modified. \n Would you like to reload it?", function(res) {
-            if (!res)
-              self.close();
-            else {
-              var callback = function() {
-                self.spawnInstance("jsroot", "JSROOT", {
-                  path: this.path
-                });
-                self.close();
-              };
-              self.openFile(data.path);
             }
           });
         }
@@ -291,7 +280,7 @@ define([
       if (!path || !this.nodes.$main) return;
       this.setLoading(true);
       this.path = path;
-      this.setLabel(path, true);
+      self.setLabel(path, true);
 
       require(["JSRootPainter"], function(JSROOT) {
         JSROOT.MathJax = 2;
