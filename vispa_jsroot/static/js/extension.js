@@ -8,7 +8,7 @@ require.config({
   map: {
     '*' : {
       'jquery-ui'  : 'vendor/jquery/plugins/ui/jquery.ui',
-      'touchpunch' : 'vendor/jquery/plugins/touchpunch/jquery.touchpunch'
+      touchpunch : 'vendor/jquery/plugins/touchpunch/jquery.touchpunch'
     }
   }
 });
@@ -51,10 +51,6 @@ define([
         self.createInstance(workspaceId, JsROOTView, { path: path });
       });
 
-      // default fast menu entries
-      // this.getDefaultPreferences(JsROOTView).fastMenuEntries.value = [ "open" ];
-      this.getDefaultPreferences(JsROOTView).fastMenuEntries.value = [ "help" ];
-
     },
 
 
@@ -90,28 +86,19 @@ define([
 
   var JsROOTView = CenterView._extend({
 
-    init: function init(obj) {
+    init: function init(args) {
       init._super.apply(this, arguments);
 
       var self = this;
 
+      this.setupState({
+        path: undefined
+      }, args);
+
       require(["JSRootCore", "JSRootPainter", "MathJax"]);
 
-      this.path    = (obj || {}).path;
       this.painter = null;
       this.nodes   = {};
-
-      // open file button
-      // this.addMenuEntry("open", {
-      //   label      : "Open File ...",
-      //   iconClass  : "glyphicon glyphicon-folder-open",
-      //   buttonClass: "btn-primary",
-      //   callback: function() {
-      //     self._extension.openViaFileSelector(self.getWorkspaceId(), function(_, path) {
-      //       self.openFile(path);
-      //     });
-      //   }
-      // });
 
       this.addMenuEntry("help", {
         label      : "Help",
@@ -130,14 +117,14 @@ define([
         if (data.event == "vanish") {
           var filename = ((data.path).split('/')).pop();
           self.confirm("The file '" + filename +
-                       "' has been deleted or renamed. \n Please open a new file or the browser is closed.",
+                       "' has been deleted or renamed. \n Please open a new file or the extension will be closed.",
           function(res) {
             if (!res)
               self.close();
             else {
               var callback = function() {
                 self.spawnInstance("jsroot", "JSROOT", {
-                  path: this.path
+                  path: self.getState("path")
                 });
                 self.close();
               };
@@ -156,7 +143,7 @@ define([
             else {
               var callback = function() {
                 self.spawnInstance("jsroot", "JSROOT", {
-                  path: this.path
+                  path: self.getState("path")
                 });
                 self.close();
               };
@@ -169,12 +156,19 @@ define([
 
     },
 
+    getFragment: function() {
+      return this.getState("path") || "";
+    },
+
+    applyFragment: function(fragment) {
+      this.setState("path", fragment);
+      return this;
+    },
 
     applyPreferences: function applyPreferences() {
       applyPreferences._super.call(this);
       this.layout(this.getPreference("sidebarWidth"));
     },
-
 
     render: function($node) {
       var self = this;
@@ -240,7 +234,7 @@ define([
         self.applyPreferences();
 
         // open initial path?
-        self.openFile(self.path);
+        self.openFile(self.getState("path"));
 
       });
     },
@@ -279,7 +273,7 @@ define([
 
       if (!path || !this.nodes.$main) return;
       this.setLoading(true);
-      this.path = path;
+      self.setState("path", path);
       self.setLabel(path, true);
 
       require(["JSRootPainter"], function(JSROOT) {
@@ -310,19 +304,18 @@ define([
 
       // watch
       this.POST("/ajax/fs/watch", {
-        path    : this.path,
+        path    : self.getState("path"),
         watch_id: "jsroot"
       });
 
     },
-
 
     openHelpDialog: function() {
       var self    = this;
       var header  = "<i class='glyphicon glyphicon-question-sign'></i> Help";
       var body    = "<h3>Why are my root files not shown correctely?</h3><br>VISPA adopts" +
                     " the <a target='_blank' href='https://github.com/linev/jsroot'>jsroot </a> library to draw" +
-                    " <a target='_blank' href='https://root.cern.ch'>ROOT</a> objects. Currently, the classes" +
+                    " <a target='_blank' href='https://root.cern.ch'>ROOT</a> argsects. Currently, the classes" +
                     " <ul><li>TH1</li><li>TH2</li><li>TH3 </li><li>TProfile</li><li>TGraph</li><li>TF1</li>" +
                     " <li>TPaveText</li><li>TCanvas</li></ul> are supported, as well as LaTeX strings." +
                     " <br>For more information, visit the jsroot <a target='_blank'" +
@@ -345,9 +338,7 @@ define([
       this.POST("/ajax/fs/unwatch");
     }
 
-
   });
-
 
   return JsROOTExtension;
 });
