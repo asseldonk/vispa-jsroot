@@ -19,4 +19,4 @@ class jsROOTExtension(AbstractExtension):
 
     def setup(self):
         self.add_controller(jsROOTController())
-        self.add_workspace_directoy()
+        # self.add_workspace_directoy()
