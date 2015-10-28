@@ -52,7 +52,7 @@ define([
       });
 
       // default fast menu entries
-      this.getDefaultPreferences(JsROOTView).fastMenuEntries.value = [ "open" ];
+      // this.getDefaultPreferences(JsROOTView).fastMenuEntries.value = [ "open" ];
       this.getDefaultPreferences(JsROOTView).fastMenuEntries.value = [ "help" ];
 
     },
