@@ -123,7 +123,8 @@ define([
               self.close();
             else {
               var callback = function() {
-                self.spawnInstance("jsroot", "JSROOT", {
+                console.log("Hello in jsROOT");
+                self.spawnInstance("jsroot", "jsroot", {
                   path: self.getState("path")
                 });
                 self.close();
@@ -142,7 +143,7 @@ define([
               self.close();
             else {
               var callback = function() {
-                self.spawnInstance("jsroot", "JSROOT", {
+                self.spawnInstance("jsroot", "jsroot", {
                   path: self.getState("path")
                 });
                 self.close();
