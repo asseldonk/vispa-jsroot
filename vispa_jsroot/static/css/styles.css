@@ -67,6 +67,9 @@
 .jsroot .sidebar-resize-wrapper .sidebar-wrapper hr {
   margin-top: 10px !important 0px 10px !important 0px;
 }
+.jsroot .sidebar-resize-wrapper .sidebar-wrapper .tree > div {
+  overflow: visible !important;
+}
 .jsroot .content-wrapper {
   position: absolute;
   top: 0px;
