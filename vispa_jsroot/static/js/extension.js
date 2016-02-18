@@ -7,8 +7,8 @@ require.config({
   },
   map: {
     '*' : {
-      'jquery-ui' : 'vendor/jquery/plugins/ui/jquery.ui',
-      touchpunch  : 'vendor/jquery/plugins/touchpunch/jquery.touchpunch'
+      "jquery-ui" : "vendor/jquery/plugins/ui/jquery.ui",
+      touchpunch  : "vendor/jquery/plugins/touchpunch/jquery.touchpunch"
     }
   }
 });
@@ -70,11 +70,11 @@ define([
           if (!path)
             return;
           var ext = path.split(".").pop().toLowerCase();
-          if (ext != "root") {
-            vispa.messenger.alert("The selected file is not a root file. Please select a different one!");
-            self.openViaFileSelector(workspaceId, callback);
-          } else {
+          if (ext == "root" || ext == "json") {
             callback(workspaceId, path);
+          } else {
+            vispa.messenger.alert("The selected file is not a valid root or json file. Please select a different one!");
+            self.openViaFileSelector(workspaceId, callback);
           }
         }
       };
@@ -273,18 +273,31 @@ define([
         self.nodes.$main.find(".tree").attr("id", treeId);
         self.nodes.$main.find(".pad").attr("id", padId);
 
-        // build the root file path
+        // build the file path
+        var ext = path.split(".").pop().toLowerCase();
         var workspaceId = self.getWorkspaceId();
         path = "fs/getfile?path=" + path + "&_workspaceId=" + workspaceId;
         path = vispa.url.dynamic(path);
 
-        // load root file
-        self.painter = new JSROOT.HierarchyPainter("painter-" + vispa.uuid(), treeId);
-        JSROOT.RegisterForResize(self.painter);
-        self.painter.SetDisplay("flex", padId);
-        self.painter.OpenRootFile(path, function() {
-          self.setLoading(false);
-        });
+        // open root files
+        if (ext == "root") {
+          // tree
+          self.painter = new JSROOT.HierarchyPainter("painter-" + vispa.uuid(), treeId);
+          JSROOT.RegisterForResize(self.painter);
+          // main div
+          self.painter.SetDisplay("flex", padId);
+          self.painter.OpenRootFile(path, function() {
+            self.setLoading(false);
+          });
+        }
+        // open json files
+        else {
+          JSROOT.NewHttpRequest(path, 'object', function(obj) {
+            JSROOT.draw(padId, obj, "hist");
+            self.setLoading(false);
+          }).send();
+        }
+
       });
 
       // watch
