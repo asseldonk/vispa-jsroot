@@ -7,8 +7,8 @@ require.config({
   },
   map: {
     '*' : {
-      'jquery-ui'  : 'vendor/jquery/plugins/ui/jquery.ui',
-      touchpunch : 'vendor/jquery/plugins/touchpunch/jquery.touchpunch'
+      'jquery-ui' : 'vendor/jquery/plugins/ui/jquery.ui',
+      touchpunch  : 'vendor/jquery/plugins/touchpunch/jquery.touchpunch'
     }
   }
 });
@@ -16,9 +16,10 @@ require.config({
 define([
   "vispa/extensions",
   "vispa/views/center",
+  "text!../html/main.html",
   "css!../css/styles",
   "css!../vendor/jsroot/style/JSRootPainter"
-], function(Extensions, CenterView) {
+], function(Extensions, CenterView, template) {
 
   var JsROOTExtension = Extensions.Extension._extend({
 
@@ -177,67 +178,63 @@ define([
       // set icon for tab
       this.setIcon("jsroot-icon-tab");
 
-      // get html template
-      this.getTemplate("html/main.html", function(err, tmpl) {
-        if (err) throw err;
+      // append template to node
+      var $main        = $(template).appendTo($node);
+      var $sidebar     = $main.find(".sidebar-resize-wrapper");
+      var $content     = $main.find(".content-wrapper");
+      var $placeholder = $main.find(".placeholder");
+      var $canvas      = $main.find(".canvas-wrapper");
 
-        var $main        = $(tmpl).appendTo($node);
-        var $sidebar     = $main.find(".sidebar-resize-wrapper");
-        var $content     = $main.find(".content-wrapper");
-        var $placeholder = $main.find(".placeholder");
-        var $canvas      = $main.find(".canvas-wrapper");
-
-        // make divs resizable
-        $sidebar.resizable({
-          start: function() {
-            var mainWidth  = $main.width();
-            $sidebar.resizable("option", "grid", [mainWidth * 0.01, 1]);
-            $sidebar.resizable("option", "minWidth", 0);
-            $sidebar.resizable("option", "maxWidth", mainWidth);
-          },
-          resize: function() {
-            var mainWidth    = $main.width();
-            var sidebarWidth = $sidebar.width();
-            var contentWidth = mainWidth - sidebarWidth;
-            $sidebar.css({
-              left : 0,
-              width: sidebarWidth
-            });
-            $content.css({
-              left : sidebarWidth,
-              width: contentWidth
-            });
-          },
-          stop: function() {
-            // tell the preferences about the new width
-            self.setPreference("sidebarWidth", parseInt(Math.floor($sidebar.width())));
-            // self.pushPreferences();
-          }
-        });
-
-        // make canvas wrapper resizable
-        $canvas.resizable({
-          start: function() {
-            // set max dimensions
-            $canvas.resizable("option", "maxWidth",  $content.width());
-            $canvas.resizable("option", "maxHeight", $content.height());
-          }
-        });
-
-        // store nodes
-        self.nodes.$main        = $main;
-        self.nodes.$sidebar     = $sidebar;
-        self.nodes.$content     = $content;
-        self.nodes.$placeholder = $placeholder;
-        self.nodes.$canvas      = $canvas;
-
-        // apply preferences
-        self.applyPreferences();
-
-        // open initial path?
-        self.openFile(self.getState("path"));
-
+      // make divs resizable
+      $sidebar.resizable({
+        start: function() {
+          var mainWidth  = $main.width();
+          $sidebar.resizable("option", "grid", [mainWidth * 0.01, 1]);
+          $sidebar.resizable("option", "minWidth", 0);
+          $sidebar.resizable("option", "maxWidth", mainWidth);
+        },
+        resize: function() {
+          var mainWidth    = $main.width();
+          var sidebarWidth = $sidebar.width();
+          var contentWidth = mainWidth - sidebarWidth;
+          $sidebar.css({
+            left : 0,
+            width: sidebarWidth
+          });
+          $content.css({
+            left : sidebarWidth,
+            width: contentWidth
+          });
+        },
+        stop: function() {
+          // tell the preferences about the new width
+          self.setPreference("sidebarWidth", parseInt(Math.floor($sidebar.width())));
+          // self.pushPreferences();
+        }
       });
+
+      // make canvas wrapper resizable
+      $canvas.resizable({
+        start: function() {
+          // set max dimensions
+          $canvas.resizable("option", "maxWidth",  $content.width());
+          $canvas.resizable("option", "maxHeight", $content.height());
+        }
+      });
+
+      // store nodes
+      self.nodes.$main        = $main;
+      self.nodes.$sidebar     = $sidebar;
+      self.nodes.$content     = $content;
+      self.nodes.$placeholder = $placeholder;
+      self.nodes.$canvas      = $canvas;
+
+      // apply preferences
+      self.applyPreferences();
+
+      // open initial path
+      console.log(self.getState("path"));
+      self.openFile(self.getState("path"));
     },
 
     layout: function(sidebarWidth) {
