@@ -76,23 +76,6 @@
   right: 0px;
   bottom: 0px;
   left: 200px;
-  background-image: url(../img/grey_wash_wall.png);
-  background-position: left;
-}
-.jsroot .content-wrapper .placeholder {
-  position: absolute;
-  top: 30px;
-  right: 30px;
-  bottom: 30px;
-  left: 30px;
-  min-height: 150px;
-  min-width: 200px;
-  font-size: 30px;
-  font-weight: lighter;
-  color: #ddd;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: inset 0px 0px 15px rgba(30, 30, 30, 0.7);
 }
 .jsroot .content-wrapper .canvas-wrapper {
   position: absolute;
@@ -101,7 +84,6 @@
   bottom: 0px;
   left: 0px;
   background-color: white;
-  display: none;
 }
 .jsroot .content-wrapper .canvas-wrapper .ui-icon {
   width: 16px;

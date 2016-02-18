@@ -182,7 +182,6 @@ define([
       var $main        = $(template).appendTo($node);
       var $sidebar     = $main.find(".sidebar-resize-wrapper");
       var $content     = $main.find(".content-wrapper");
-      var $placeholder = $main.find(".placeholder");
       var $canvas      = $main.find(".canvas-wrapper");
 
       // make divs resizable
@@ -190,8 +189,8 @@ define([
         start: function() {
           var mainWidth  = $main.width();
           $sidebar.resizable("option", "grid", [mainWidth * 0.01, 1]);
-          $sidebar.resizable("option", "minWidth", 0);
-          $sidebar.resizable("option", "maxWidth", mainWidth);
+          $sidebar.resizable("option", "minWidth", 10);
+          $sidebar.resizable("option", "maxWidth", mainWidth-10);
         },
         resize: function() {
           var mainWidth    = $main.width();
@@ -213,20 +212,10 @@ define([
         }
       });
 
-      // make canvas wrapper resizable
-      $canvas.resizable({
-        start: function() {
-          // set max dimensions
-          $canvas.resizable("option", "maxWidth",  $content.width());
-          $canvas.resizable("option", "maxHeight", $content.height());
-        }
-      });
-
       // store nodes
       self.nodes.$main        = $main;
       self.nodes.$sidebar     = $sidebar;
       self.nodes.$content     = $content;
-      self.nodes.$placeholder = $placeholder;
       self.nodes.$canvas      = $canvas;
 
       // apply preferences
@@ -276,8 +265,6 @@ define([
 
       require(["JSRootPainter"], function(JSROOT) {
         JSROOT.MathJax = 2;
-        self.nodes.$placeholder.hide();
-        self.nodes.$canvas.show().find("> div.pad").empty();
 
         // set new ids
         var treeId = "tree-" + vispa.uuid();
@@ -294,7 +281,7 @@ define([
         // load root file
         self.painter = new JSROOT.HierarchyPainter("painter-" + vispa.uuid(), treeId);
         JSROOT.RegisterForResize(self.painter);
-        self.painter.SetDisplay("simple", padId);
+        self.painter.SetDisplay("flex", padId);
         self.painter.OpenRootFile(path, function() {
           self.setLoading(false);
         });
