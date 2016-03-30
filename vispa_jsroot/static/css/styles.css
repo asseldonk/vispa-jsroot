@@ -18,7 +18,7 @@
   top: 1px;
   margin-right: 3px;
 }
-.jsroot {
+.vispa-jsroot {
   position: absolute;
   top: 0px;
   right: 0px;
@@ -26,7 +26,7 @@
   left: 0px;
   overflow: hidden;
 }
-.jsroot .sidebar-resize-wrapper {
+.vispa-jsroot .sidebar-resize-wrapper {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -35,7 +35,7 @@
   border: 1px solid #b8b8b8;
   border-width: 0px 1px 0px 0px;
 }
-.jsroot .sidebar-resize-wrapper > .ui-resizable-e {
+.vispa-jsroot .sidebar-resize-wrapper > .ui-resizable-e {
   position: absolute;
   top: 0px;
   right: -5px;
@@ -44,15 +44,15 @@
   cursor: ew-resize;
   z-index: 1 !important;
 }
-.jsroot .sidebar-resize-wrapper > .ui-resizable-e:active {
+.vispa-jsroot .sidebar-resize-wrapper > .ui-resizable-e:active {
   right: -500px;
   width: 1000px;
 }
-.jsroot .sidebar-resize-wrapper > .ui-icon {
+.vispa-jsroot .sidebar-resize-wrapper > .ui-icon {
   width: 0px;
   height: 0px;
 }
-.jsroot .sidebar-resize-wrapper .sidebar-wrapper {
+.vispa-jsroot .sidebar-resize-wrapper .sidebar-wrapper {
   position: absolute;
   top: 0px;
   right: 0px;
@@ -61,54 +61,26 @@
   overflow: auto;
   padding: 10px 20px;
 }
-.jsroot .sidebar-resize-wrapper .sidebar-wrapper button {
+.vispa-jsroot .sidebar-resize-wrapper .sidebar-wrapper button {
   margin-top: 10px;
 }
-.jsroot .sidebar-resize-wrapper .sidebar-wrapper hr {
+.vispa-jsroot .sidebar-resize-wrapper .sidebar-wrapper hr {
   margin-top: 10px !important 0px 10px !important 0px;
 }
-.jsroot .sidebar-resize-wrapper .sidebar-wrapper .tree > div {
+.vispa-jsroot .sidebar-resize-wrapper .sidebar-wrapper .tree > div {
   overflow: visible !important;
 }
-.jsroot .content-wrapper {
+.vispa-jsroot .content-wrapper {
   position: absolute;
   top: 0px;
   right: 0px;
   bottom: 0px;
   left: 200px;
 }
-.jsroot .content-wrapper .canvas-wrapper {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
-  background-color: white;
-}
-.jsroot .content-wrapper .canvas-wrapper .ui-icon {
-  width: 16px;
-  height: 16px;
-}
-.jsroot .content-wrapper .canvas-wrapper .pad {
+.vispa-jsroot .content-wrapper .pad {
   position: absolute;
   top: 16px;
   right: 16px;
   bottom: 16px;
   left: 16px;
-}
-.jsroot .content-wrapper .canvas-wrapper .pad .root_canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
-.jsroot .content-wrapper .canvas-wrapper .pad canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
-.jsroot .content-wrapper .canvas-wrapper .frame {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
-  display: none;
 }

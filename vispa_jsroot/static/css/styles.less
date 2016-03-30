@@ -23,7 +23,7 @@
   margin-right    : 3px;
 }
 
-.jsroot {
+.vispa-jsroot {
 
   .absolute();
   overflow: hidden;
@@ -74,37 +74,39 @@
   .content-wrapper {
     .absolute(@left: @initial-tree-width);
 
-    .canvas-wrapper {
-      .absolute();
-      background-color: white;
+    //.canvas-wrapper {
+    //  .absolute();
 
-      // workaround
-      .ui-icon {
-        width : 16px;
-        height: 16px;
-      }
-
-      .pad {
-        .absolute(@top: 16px; @right: 16px; @bottom: 16px; @left: 16px);
-
-        .root_canvas {
-          width : 100% !important;
-          height: 100% !important;
-        }
-
-        canvas {
-          width : 100% !important;
-          height: 100% !important;
-        }
-
-      }
-
-      .frame {
-        .absolute();
-        display: none;
-      }
-
+    .pad {
+      .absolute(@top: 16px; @right: 16px; @bottom: 16px; @left: 16px);
     }
+      // workaround
+      //.ui-icon {
+      //  width : 16px;
+      //  height: 16px;
+      //}
+
+      // .pad {
+      //   .absolute(@top: 16px; @right: 16px; @bottom: 16px; @left: 16px);
+
+      //   .root_canvas {
+      //     width : 100% !important;
+      //     height: 100% !important;
+      //   }
+
+      //   canvas {
+      //     width : 100% !important;
+      //     height: 100% !important;
+      //   }
+
+      // }
+
+      // .frame {
+      //   .absolute();
+      //   display: none;
+      // }
+
+    //}
 
   }
 

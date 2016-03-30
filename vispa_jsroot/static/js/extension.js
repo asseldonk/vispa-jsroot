@@ -182,7 +182,6 @@ define([
       var $main        = $(template).appendTo($node);
       var $sidebar     = $main.find(".sidebar-resize-wrapper");
       var $content     = $main.find(".content-wrapper");
-      var $canvas      = $main.find(".canvas-wrapper");
 
       // make divs resizable
       $sidebar.resizable({
@@ -216,7 +215,6 @@ define([
       self.nodes.$main        = $main;
       self.nodes.$sidebar     = $sidebar;
       self.nodes.$content     = $content;
-      self.nodes.$canvas      = $canvas;
 
       // apply preferences
       self.applyPreferences();
@@ -247,11 +245,6 @@ define([
         width: ""
       });
 
-      // maybe update the canvas width
-      var contentWidth = this.nodes.$content.width();
-      if (this.nodes.$canvas.width() > contentWidth) {
-        this.nodes.$canvas.width(contentWidth);
-      }
     },
 
 
