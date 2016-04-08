@@ -306,9 +306,26 @@ define([
       var header  = "<i class='glyphicon glyphicon-question-sign'></i> Help";
       var body    = "<h3>Why are my root files not shown correctely?</h3><br>VISPA adopts" +
                     " the <a target='_blank' href='https://github.com/linev/jsroot'>jsroot </a> library to draw" +
-                    " <a target='_blank' href='https://root.cern.ch'>ROOT</a> argsects. Currently, the classes" +
-                    " <ul><li>TH1</li><li>TH2</li><li>TH3 </li><li>TProfile</li><li>TGraph</li><li>TF1</li>" +
-                    " <li>TPaveText</li><li>TCanvas</li></ul> are supported, as well as LaTeX strings." +
+                    " <a target='_blank' href='https://root.cern.ch'>ROOT</a> argsects. Many classes like " +
+                    "<ul>" +
+                    "<li>TH1, TH2, TH3</li>" +
+                    "<li>TProfile</li>" +
+                    "<li>TGraph</li>" +
+                    "<li>TMultiGraph</li>" +
+                    "<li>TF1, TF2, TF3</li>" +
+                    "<li>TList</li>" +
+                    "<li>TAxis</li>" +
+                    "<li>TPave</li>" +
+                    "<li>TObject</li>" +
+                    "<li>TCanvas</li>" +
+                    "<li>TGaxis</li>" +
+                    "<li>TFrame</li>" +
+                    "<li>TGeo</li>" +
+                    "<li>TFile</li>" +
+                    "<li>TFolder</li>" +
+                    "<li>...</li>" +
+                    "</ul>" +
+                    " are supported, as well as LaTeX strings." +
                     " <br>For more information, visit the jsroot <a target='_blank'" +
                     " href='https://github.com/linev/jsroot/blob/master/docs/JSROOT.md'> documentation site</a>.";
       var $footer = $("<div><button class='btn btn-primary'>Close</button></div>");
