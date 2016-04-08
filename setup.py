@@ -10,7 +10,7 @@ setup(
     author           = "VISPA Project",
     author_email     = "vispa@lists.rwth-aachen.de",
     url              = "http://vispa.physik.rwth-aachen.de/",
-    license          = "GNU GPL v2",
+    license          = "MIT License",
     packages         = ["vispa_jsroot"],
     package_dir      = {"vispa_jsroot": "vispa_jsroot"},
     package_data     = {"vispa_jsroot": [
